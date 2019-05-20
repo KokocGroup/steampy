@@ -19,8 +19,14 @@ class InvalidCredentials(Exception):
 
 
 class CaptchaRequired(Exception):
-    pass
+    def __init__(self, captcha_gid, *args, **kwargs):
+        super(CaptchaRequired, self).__init__(*args, **kwargs)
+        self.captcha_gid = captcha_gid
 
 
 class ConfirmationExpected(Exception):
+    pass
+
+
+class RuCaptchaError(Exception):
     pass
