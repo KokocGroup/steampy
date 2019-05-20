@@ -93,8 +93,7 @@ class SteamClient:
         steam_id = self.steam_guard['steamid']
         return self.get_partner_inventory(steam_id, game, merge, count)
 
-    @login_required
-    def get_partner_inventory(self, partner_steam_id: str, game: GameOptions, merge: bool = True, count: int = 5000) -> dict:
+    def _get_partner_inventory(self, partner_steam_id: str, game: GameOptions, merge: bool = True, count: int = 5000) -> dict:
         url = '/'.join([SteamUrl.COMMUNITY_URL, 'inventory', partner_steam_id, game.app_id, game.context_id])
         params = {'l': 'english',
                   'count': count}
@@ -104,6 +103,13 @@ class SteamClient:
         if merge:
             return merge_items_with_descriptions_from_inventory(response_dict, game)
         return response_dict
+
+    @login_required
+    def get_partner_inventory(self, partner_steam_id: str, game: GameOptions, merge: bool = True, count: int = 5000) -> dict:
+        return self._get_partner_inventory(partner_steam_id, game, merge, count)
+
+    def get_partner_inventory_simple(self, partner_steam_id: str, game: GameOptions, merge: bool = True, count: int = 5000) -> dict:
+        return self._get_partner_inventory(partner_steam_id, game, merge, count)
 
     def _get_session_id(self) -> str:
         return self._session.cookies.get_dict()['sessionid']
