@@ -30,21 +30,27 @@ def login_required(func):
 
 
 class SteamClient:
-    def __init__(self, api_key: str, username: str = None, password: str = None, steam_guard: str = None) -> None:
+    def __init__(self, api_key: str, username: str = None, password: str = None, steam_guard: str = None, rucaptcha_key: str = None) -> None:
         self._api_key = api_key
         self._session = requests.Session()
         self.steam_guard = steam_guard
         self.was_login_executed = False
         self.username = username
         self._password = password
+        self._rucaptcha_key = rucaptcha_key
         self.market = SteamMarket(self._session)
         self.chat = SteamChat(self._session)
 
-    def login(self, username: str, password: str, steam_guard: str, rucaptcha_key: str) -> None:
-        self.steam_guard = guard.load_steam_guard(steam_guard)
-        self.username = username
-        self._password = password
-        LoginExecutor(username, password, self.steam_guard['shared_secret'], self._session, rucaptcha_key).login()
+    def login(self, username: str = None, password: str = None, steam_guard: str = None, rucaptcha_key: str = None) -> None:
+        if steam_guard:
+            self.steam_guard = guard.load_steam_guard(steam_guard)
+        if username:
+            self.username = username
+        if password:
+            self._password = password
+        if rucaptcha_key:
+            self._rucaptcha_key = rucaptcha_key
+        LoginExecutor(self.username, self._password, self.steam_guard['shared_secret'], self._session, self._rucaptcha_key).login()
         self.was_login_executed = True
         self.market._set_login_executed(self.steam_guard, self._get_session_id())
 
