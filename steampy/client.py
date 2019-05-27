@@ -1,11 +1,12 @@
 import decimal
-
-import bs4
+import json
+import pickle
 import urllib.parse as urlparse
 from typing import List, Union
 
-import json
+import bs4
 import requests
+
 from steampy import guard
 from steampy.chat import SteamChat
 from steampy.confirmation import ConfirmationExecutor
@@ -29,7 +30,7 @@ def login_required(func):
 
 
 class SteamClient:
-    def __init__(self, api_key: str, username: str = None, password: str = None, steam_guard:str = None) -> None:
+    def __init__(self, api_key: str, username: str = None, password: str = None, steam_guard: str = None) -> None:
         self._api_key = api_key
         self._session = requests.Session()
         self.steam_guard = steam_guard
@@ -46,6 +47,16 @@ class SteamClient:
         LoginExecutor(username, password, self.steam_guard['shared_secret'], self._session, rucaptcha_key).login()
         self.was_login_executed = True
         self.market._set_login_executed(self.steam_guard, self._get_session_id())
+
+    def load_cookie(self, file_path):
+        with open(file_path, 'rb') as f:
+            self._session.cookies.update(pickle.load(f))
+        self.was_login_executed = True
+        self.market._set_login_executed(self.steam_guard, self._get_session_id())
+
+    def save_cookie(self, file_path):
+        with open(file_path, 'wb') as f:
+            pickle.dump(self._session.cookies, f)
 
     @login_required
     def logout(self) -> None:
@@ -225,7 +236,7 @@ class SteamClient:
         url = 'https://steamcommunity.com/tradeoffer/' + trade_offer_id + '/cancel'
         response = self._session.post(url, data={'sessionid': self._get_session_id()}).json()
         return response
-    
+
     @login_required
     def make_offer(self, items_from_me: List[Asset], items_from_them: List[Asset], partner_steam_id: str,
                    message: str = '') -> dict:
@@ -256,7 +267,7 @@ class SteamClient:
         data = response.json()
         return data['response']['players'][0]
 
-    def get_friend_list(self, steam_id: str, relationship_filter: str="all") -> dict:
+    def get_friend_list(self, steam_id: str, relationship_filter: str = "all") -> dict:
         params = {
             'key': self._api_key,
             'steamid': steam_id,
@@ -294,7 +305,7 @@ class SteamClient:
 
     @login_required
     def make_offer_with_url(self, items_from_me: List[Asset], items_from_them: List[Asset],
-                            trade_offer_url: str, message: str = '', case_sensitive: bool=True) -> dict:
+                            trade_offer_url: str, message: str = '', case_sensitive: bool = True) -> dict:
         token = get_key_value_from_url(trade_offer_url, 'token', case_sensitive)
         partner_account_id = get_key_value_from_url(trade_offer_url, 'partner', case_sensitive)
         partner_steam_id = account_id_to_steam_id(partner_account_id)
