@@ -1,6 +1,7 @@
 import decimal
 import json
 import pickle
+import os
 import urllib.parse as urlparse
 from typing import List, Union
 
@@ -61,6 +62,9 @@ class SteamClient:
         self.market._set_login_executed(self.steam_guard, self._get_session_id())
 
     def save_cookie(self, file_path):
+        basedir = os.path.dirname(file_path)
+        if not os.path.exists(basedir):
+            os.makedirs(basedir)
         with open(file_path, 'wb') as f:
             pickle.dump(self._session.cookies, f)
 
