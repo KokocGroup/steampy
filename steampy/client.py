@@ -175,6 +175,17 @@ class SteamClient:
             response['response']['offer'] = merge_items_with_descriptions_from_offer(offer, descriptions)
         return response
 
+    def get_trade_status(self, trade_id):
+        params = {
+            'key': self._api_key,
+            'tradeid': trade_id,
+            'language': 'english'
+        }
+
+        response = self.api_call('GET', "IEconService", "GetTradeStatus", 'v1', params).json()
+        if response.get('response', {}).get('trades'):
+            return response['response']['trades'][0]
+
     def get_trade_history(self,
                           max_trades=100,
                           start_after_time=None,
