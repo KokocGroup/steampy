@@ -34,6 +34,15 @@ class SteamClient:
     def __init__(self, api_key: str, username: str = None, password: str = None, steam_guard: str = None, rucaptcha_key: str = None, proxy: dict = None) -> None:
         self._api_key = api_key
         self._session = requests.Session()
+        self._session.headers.update({
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,fr;q=0.6",
+            "Cache-Control": "max-age=0",
+            "Connection": "keep-alive",
+            "DNT": "1",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36"
+        })
         if proxy:
             self._session.proxies.update(proxy)
         self.steam_guard = steam_guard
@@ -43,6 +52,9 @@ class SteamClient:
         self._rucaptcha_key = rucaptcha_key
         self.market = SteamMarket(self._session)
         self.chat = SteamChat(self._session)
+
+    def set_proxy(self, proxy: dict):
+        self._session.proxies.update(proxy)
 
     def login(self, username: str = None, password: str = None, steam_guard: str = None, rucaptcha_key: str = None) -> None:
         if steam_guard:
