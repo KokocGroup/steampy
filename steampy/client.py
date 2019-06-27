@@ -121,6 +121,8 @@ class SteamClient:
         response_dict = self._session.get(url, params=params).json()
         if not response_dict:
             raise NullInventory()
+        if response_dict.get('error'):
+            raise ApiException(response_dict['error'])
         if response_dict['success'] != 1:
             raise ApiException('Success value should be 1.')
         if merge:
