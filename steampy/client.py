@@ -118,7 +118,7 @@ class SteamClient:
         url = '/'.join([SteamUrl.COMMUNITY_URL, 'inventory', partner_steam_id, game.app_id, game.context_id])
         params = {'l': 'english',
                   'count': count}
-        response_dict = self._session.get(url, params=params).json()
+        response_dict = self._session.get(url, params=params, stream=True).json()
         if not response_dict:
             raise NullInventory()
         if response_dict.get('error'):
