@@ -42,7 +42,6 @@ class SteamMarket:
             raise TooManyRequests("You can fetch maximum 20 prices in 60s period")
         return response.json()
 
-    @login_required
     def fetch_price_history(self, item_hash_name: str, game: GameOptions, currency: str = Currency.USD) -> dict:
         url = SteamUrl.COMMUNITY_URL + '/market/pricehistory/'
         params = {'country': 'PL',
