@@ -11,7 +11,7 @@ import requests
 from steampy import guard
 from steampy.chat import SteamChat
 from steampy.confirmation import ConfirmationExecutor
-from steampy.exceptions import SevenDaysHoldException, LoginRequired, ApiException
+from steampy.exceptions import SevenDaysHoldException, LoginRequired, ApiException, NullInventory
 from steampy.login import LoginExecutor, InvalidCredentials
 from steampy.market import SteamMarket
 from steampy.models import Asset, TradeOfferState, SteamUrl, GameOptions
@@ -119,6 +119,8 @@ class SteamClient:
         params = {'l': 'english',
                   'count': count}
         response_dict = self._session.get(url, params=params).json()
+        if not response_dict:
+            raise NullInventory()
         if response_dict['success'] != 1:
             raise ApiException('Success value should be 1.')
         if merge:
