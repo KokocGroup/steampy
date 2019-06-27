@@ -1,7 +1,7 @@
 import decimal
 import json
-import pickle
 import os
+import pickle
 import urllib.parse as urlparse
 from typing import List, Union
 
@@ -31,9 +31,11 @@ def login_required(func):
 
 
 class SteamClient:
-    def __init__(self, api_key: str, username: str = None, password: str = None, steam_guard: str = None, rucaptcha_key: str = None) -> None:
+    def __init__(self, api_key: str, username: str = None, password: str = None, steam_guard: str = None, rucaptcha_key: str = None, proxy: dict = None) -> None:
         self._api_key = api_key
         self._session = requests.Session()
+        if proxy:
+            self._session.proxies.update(proxy)
         self.steam_guard = steam_guard
         self.was_login_executed = False
         self.username = username
