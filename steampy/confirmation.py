@@ -28,6 +28,11 @@ class Tag(enum.Enum):
 class ConfirmationExecutor:
     CONF_URL = "https://steamcommunity.com/mobileconf"
 
+    BAD_GUARD_FILE_MESSAGES = (
+        "Похоже, ваш мобильный аутентификатор Steam предоставляет неверные коды для Steam Guard.",
+        'Steam Guard Mobile Authenticator is providing incorrect Steam Guard codes.'
+    )
+
     def __init__(self, identity_secret: str, my_steam_id: str, session: requests.Session) -> None:
         self._my_steam_id = my_steam_id
         self._identity_secret = identity_secret
@@ -73,7 +78,7 @@ class ConfirmationExecutor:
         params = self._create_confirmation_params(tag)
         headers = {'X-Requested-With': 'com.valvesoftware.android.steam.community'}
         response = self._session.get(self.CONF_URL + '/conf', params=params, headers=headers)
-        if 'Steam Guard Mobile Authenticator is providing incorrect Steam Guard codes.' in response.text:
+        if any(error_str in response.text for error_str in self.BAD_GUARD_FILE_MESSAGES):
             raise InvalidCredentials('Invalid Steam Guard file')
         return response
 
