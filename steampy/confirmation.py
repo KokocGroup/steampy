@@ -57,14 +57,14 @@ class ConfirmationExecutor:
         confirmations_page = self._fetch_confirmations_page()
         content = confirmations_page.text
         soup = BeautifulSoup(content, 'html.parser')
-        if soup.select('#mobileconf_empty'):
-            raise EmptyMobileConfirmation(content)
         for confirmation_div in soup.select('#mobileconf_list .mobileconf_list_entry'):
             _id = confirmation_div['id']
             data_confid = confirmation_div['data-confid']
             data_key = confirmation_div['data-key']
             confirmations.append(Confirmation(_id, data_confid, data_key))
         if not confirmations:
+            raise EmptyMobileConfirmation(content)
+        if soup.select('#mobileconf_empty'):
             raise EmptyMobileConfirmation(content)
         return confirmations
 
