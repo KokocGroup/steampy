@@ -34,3 +34,7 @@ class ConfirmationExpected(Exception):
 
 class RuCaptchaError(Exception):
     pass
+
+
+class EmptyMobileConfirmation(Exception):
+    pass

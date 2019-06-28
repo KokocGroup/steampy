@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from steampy import guard
-from steampy.exceptions import ConfirmationExpected
+from steampy.exceptions import ConfirmationExpected, EmptyMobileConfirmation
 from steampy.login import InvalidCredentials
 
 
@@ -55,14 +55,17 @@ class ConfirmationExecutor:
     def _get_confirmations(self) -> List[Confirmation]:
         confirmations = []
         confirmations_page = self._fetch_confirmations_page()
-        soup = BeautifulSoup(confirmations_page.text, 'html.parser')
+        content = confirmations_page.text
+        soup = BeautifulSoup(content, 'html.parser')
         if soup.select('#mobileconf_empty'):
-            return confirmations
+            raise EmptyMobileConfirmation(content)
         for confirmation_div in soup.select('#mobileconf_list .mobileconf_list_entry'):
             _id = confirmation_div['id']
             data_confid = confirmation_div['data-confid']
             data_key = confirmation_div['data-key']
             confirmations.append(Confirmation(_id, data_confid, data_key))
+        if not confirmations:
+            raise EmptyMobileConfirmation(content)
         return confirmations
 
     def _fetch_confirmations_page(self) -> requests.Response:
