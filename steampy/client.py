@@ -157,7 +157,7 @@ class SteamClient:
         params = {'key': self._api_key}
         return self.api_call('GET', 'IEconService', 'GetTradeOffersSummary', 'v1', params).json()
 
-    def get_trade_offers(self, merge: bool = True, get_sent_offers=True, get_received_offers=True, get_descriptions=True, active_only=False, historical_only=False, language="english", time_historical_cutoff="") -> dict:
+    def get_trade_offers(self, merge: bool = True, get_sent_offers=1, get_received_offers=1, get_descriptions=1, active_only=0, historical_only=0, language="english", time_historical_cutoff="") -> dict:
         params = {'key': self._api_key,
                   'get_sent_offers': get_sent_offers,
                   'get_received_offers': get_received_offers,
