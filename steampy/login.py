@@ -116,8 +116,9 @@ class LoginExecutor:
 
     @staticmethod
     def _assert_valid_credentials(login_response: requests.Response) -> None:
-        if not login_response.json()['success']:
-            raise InvalidCredentials(login_response.json()['message'])
+        response = login_response.json()
+        if not response['success']:
+            raise InvalidCredentials(response['message'])
 
     def _perform_redirects(self, response_dict: dict) -> None:
         parameters = response_dict.get('transfer_parameters')
