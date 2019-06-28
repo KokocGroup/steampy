@@ -157,17 +157,17 @@ class SteamClient:
         params = {'key': self._api_key}
         return self.api_call('GET', 'IEconService', 'GetTradeOffersSummary', 'v1', params).json()
 
-    def get_trade_offers(self, merge: bool = True) -> dict:
+    def get_trade_offers(self, merge: bool = True, get_sent_offers=True, get_received_offers=True, get_descriptions=True, active_only=False, historical_only=False, language="english", time_historical_cutoff="") -> dict:
         params = {'key': self._api_key,
-                  'get_sent_offers': 1,
-                  'get_received_offers': 1,
-                  'get_descriptions': 1,
-                  'language': 'english',
-                  'active_only': 1,
-                  'historical_only': 0,
-                  'time_historical_cutoff': ''}
+                  'get_sent_offers': get_sent_offers,
+                  'get_received_offers': get_received_offers,
+                  'get_descriptions': get_descriptions,
+                  'language': language,
+                  'active_only': active_only,
+                  'historical_only': historical_only,
+                  'time_historical_cutoff': time_historical_cutoff}
         response = self.api_call('GET', 'IEconService', 'GetTradeOffers', 'v1', params).json()
-        response = self._filter_non_active_offers(response)
+        # response = self._filter_non_active_offers(response)
         if merge:
             response = merge_items_with_descriptions_from_offers(response)
         return response
