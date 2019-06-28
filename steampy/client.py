@@ -37,7 +37,6 @@ class SteamClient:
         self._session.headers.update({
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
             "Accept-Encoding": "gzip, deflate, br",
-            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,fr;q=0.6",
             "Cache-Control": "max-age=0",
             "Connection": "keep-alive",
             "DNT": "1",
