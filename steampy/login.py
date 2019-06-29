@@ -4,7 +4,7 @@ import requests
 from steampy import guard
 import rsa
 from steampy.models import SteamUrl
-from steampy.exceptions import InvalidCredentials, CaptchaRequired, RuCaptchaError
+from steampy.exceptions import InvalidCredentials, CaptchaRequired, RuCaptchaError, BannedError
 from python_rucaptcha import ImageCaptcha
 
 
@@ -52,6 +52,8 @@ class LoginExecutor:
         if post_data is not None:
             request_data.update(post_data)
         response = self.session.post(SteamUrl.STORE_URL + '/login/dologin', data=request_data)
+        if response.status_code == 429:
+            raise BannedError(response.content)
         response.raise_for_status()
         return response
 

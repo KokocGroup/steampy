@@ -36,5 +36,9 @@ class RuCaptchaError(Exception):
     pass
 
 
+class BannedError(Exception):
+    pass
+
+
 class EmptyMobileConfirmation(Exception):
     pass
