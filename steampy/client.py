@@ -11,7 +11,7 @@ import requests
 from steampy import guard
 from steampy.chat import SteamChat
 from steampy.confirmation import ConfirmationExecutor
-from steampy.exceptions import SevenDaysHoldException, LoginRequired, ApiException, NullInventory
+from steampy.exceptions import SevenDaysHoldException, LoginRequired, ApiException, NullInventory, BannedError
 from steampy.login import LoginExecutor, InvalidCredentials
 from steampy.market import SteamMarket
 from steampy.models import Asset, TradeOfferState, SteamUrl, GameOptions
@@ -115,6 +115,9 @@ class SteamClient:
             response = requests.post(url, data=params)
         if self.is_invalid_api_key(response):
             raise InvalidCredentials('Invalid API key')
+        if response.status_code == 429:
+            raise BannedError(response.content)
+        response.raise_for_status()
         return response
 
     @staticmethod
