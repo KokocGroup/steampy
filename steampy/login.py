@@ -21,7 +21,6 @@ class LoginExecutor:
     def login(self) -> requests.Session:
         try:
             login_response = self._send_login_request()
-            login_response.raise_for_status()
             self._check_for_captcha(login_response)
         except CaptchaRequired as e:
             image_link = 'https://store.steampowered.com/login/rendercaptcha/?gid={}'.format(e.captcha_gid)
@@ -52,7 +51,9 @@ class LoginExecutor:
         request_data = self._prepare_login_request_data(encrypted_password, rsa_timestamp)
         if post_data is not None:
             request_data.update(post_data)
-        return self.session.post(SteamUrl.STORE_URL + '/login/dologin', data=request_data)
+        response = self.session.post(SteamUrl.STORE_URL + '/login/dologin', data=request_data)
+        response.raise_for_status()
+        return response
 
     def set_sessionid_cookies(self):
         sessionid = self.session.cookies.get_dict()['sessionid']
