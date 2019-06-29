@@ -131,7 +131,9 @@ class SteamClient:
         url = '/'.join([SteamUrl.COMMUNITY_URL, 'inventory', partner_steam_id, game.app_id, game.context_id])
         params = {'l': 'english',
                   'count': count}
-        response_dict = self._session.get(url, params=params, stream=True).json()
+        response = self._session.get(url, params=params, stream=True)
+        response.raise_for_status()
+        response_dict = response.json()
         if not response_dict:
             raise NullInventory()
         if response_dict.get('error'):
@@ -364,6 +366,7 @@ class SteamClient:
         headers = {'Referer': SteamUrl.COMMUNITY_URL + urlparse.urlparse(trade_offer_url).path,
                    'Origin': SteamUrl.COMMUNITY_URL}
         response = self._session.post(url, data=params, headers=headers).json()
+        response.raise_for_status()
         if response.get('needs_mobile_confirmation'):
             response.update(self._confirm_transaction(response['tradeofferid']))
         return response

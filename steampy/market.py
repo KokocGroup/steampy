@@ -40,6 +40,7 @@ class SteamMarket:
         response = self._session.get(url, params=params)
         if response.status_code == 429:
             raise TooManyRequests("You can fetch maximum 20 prices in 60s period")
+        response.raise_for_status()
         return response.json()
 
     def fetch_price_history(self, item_hash_name: str, game: GameOptions, currency: str = Currency.USD) -> dict:
@@ -49,6 +50,7 @@ class SteamMarket:
         response = self._session.get(url, params=params)
         if response.status_code == 429:
             raise TooManyRequests("You can fetch maximum 20 prices in 60s period")
+        response.raise_for_status()
         return response.json()
 
     @login_required
