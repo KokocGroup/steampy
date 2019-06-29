@@ -376,7 +376,7 @@ class SteamClient:
             response.raise_for_status()
 
         if response_dict.get('needs_mobile_confirmation'):
-            response_dict.update(self._confirm_transaction(response['tradeofferid']))
+            response_dict.update(self._confirm_transaction(response_dict['tradeofferid']))
         return response_dict
 
     @staticmethod
