@@ -21,6 +21,7 @@ class LoginExecutor:
     def login(self) -> requests.Session:
         try:
             login_response = self._send_login_request()
+            login_response.raise_for_status()
             self._check_for_captcha(login_response)
         except CaptchaRequired as e:
             image_link = 'https://store.steampowered.com/login/rendercaptcha/?gid={}'.format(e.captcha_gid)
