@@ -121,8 +121,12 @@ class LoginExecutor:
     @staticmethod
     def _assert_valid_credentials(login_response: requests.Response) -> None:
         response = login_response.json()
+
         if not response['success']:
-            raise InvalidCredentials(response['message'])
+            if "too many login failures from your network" in response['message']:
+                raise BannedError(response['message'])
+            else:
+                raise InvalidCredentials(response['message'])
 
     def _perform_redirects(self, response_dict: dict) -> None:
         parameters = response_dict.get('transfer_parameters')
