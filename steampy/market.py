@@ -49,6 +49,7 @@ class SteamMarket:
         response = self._session.get(url, params=params)
         if response.status_code == 429:
             raise TooManyRequests("You can fetch maximum 20 prices in 60s period")
+        response.raise_for_status()
         return response.json()
 
     @login_required
