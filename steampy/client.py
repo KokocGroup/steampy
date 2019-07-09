@@ -11,7 +11,7 @@ import requests
 from steampy import guard
 from steampy.chat import SteamChat
 from steampy.confirmation import ConfirmationExecutor
-from steampy.exceptions import SevenDaysHoldException, LoginRequired, ApiException, NullInventory, BannedError
+from steampy.exceptions import SevenDaysHoldException, LoginRequired, ApiException, NullInventory, BannedError, BadResponse
 from steampy.login import LoginExecutor, InvalidCredentials
 from steampy.market import SteamMarket
 from steampy.models import Asset, TradeOfferState, SteamUrl, GameOptions
@@ -106,6 +106,10 @@ class SteamClient:
         main_page_response = self._session.get(SteamUrl.COMMUNITY_URL)
         return steam_login.lower() in main_page_response.text.lower()
 
+    def _check_response(self, response):
+        if response.status_code in (502,):
+            raise BadResponse(response)
+
     def api_call(self, request_method: str, interface: str, api_method: str, version: str,
                  params: dict = None) -> requests.Response:
         url = '/'.join([SteamUrl.API_URL, interface, api_method, version])
@@ -117,7 +121,7 @@ class SteamClient:
             raise InvalidCredentials('Invalid API key')
         if response.status_code == 429:
             raise BannedError(response.content)
-        response.raise_for_status()
+        self._check_response(response)
         return response
 
     @staticmethod
@@ -135,6 +139,7 @@ class SteamClient:
         params = {'l': 'english',
                   'count': count}
         response = self._session.get(url, params=params, stream=True)
+        self._check_response(response)
         response_dict = response.json()
         if not response_dict:
             raise NullInventory()
@@ -255,7 +260,9 @@ class SteamClient:
                   'partner': partner,
                   'captcha': ''}
         headers = {'Referer': self._get_trade_offer_url(trade_offer_id)}
-        response = self._session.post(accept_url, data=params, headers=headers).json()
+        response = self._session.post(accept_url, data=params, headers=headers)
+        self._check_response(response)
+        response = response.json()
         if response.get('needs_mobile_confirmation', False):
             return self._confirm_transaction(trade_offer_id)
         return response
@@ -274,12 +281,16 @@ class SteamClient:
 
     def decline_trade_offer(self, trade_offer_id: str) -> dict:
         url = 'https://steamcommunity.com/tradeoffer/' + trade_offer_id + '/decline'
-        response = self._session.post(url, data={'sessionid': self._get_session_id()}).json()
+        response = self._session.post(url, data={'sessionid': self._get_session_id()})
+        self._check_response(response)
+        response = response.json()
         return response
 
     def cancel_trade_offer(self, trade_offer_id: str) -> dict:
         url = 'https://steamcommunity.com/tradeoffer/' + trade_offer_id + '/cancel'
-        response = self._session.post(url, data={'sessionid': self._get_session_id()}).json()
+        response = self._session.post(url, data={'sessionid': self._get_session_id()})
+        self._check_response(response)
+        response = response.json()
         return response
 
     @login_required
@@ -301,7 +312,9 @@ class SteamClient:
         partner_account_id = steam_id_to_account_id(partner_steam_id)
         headers = {'Referer': SteamUrl.COMMUNITY_URL + '/tradeoffer/new/?partner=' + partner_account_id,
                    'Origin': SteamUrl.COMMUNITY_URL}
-        response = self._session.post(url, data=params, headers=headers).json()
+        response = self._session.post(url, data=params, headers=headers)
+        self._check_response(response)
+        response = response.json()
         if response.get('needs_mobile_confirmation'):
             response.update(self._confirm_transaction(response['tradeofferid']))
         return response
@@ -371,6 +384,7 @@ class SteamClient:
         headers = {'Referer': SteamUrl.COMMUNITY_URL + urlparse.urlparse(trade_offer_url).path,
                    'Origin': SteamUrl.COMMUNITY_URL}
         response = self._session.post(url, data=params, headers=headers)
+        self._check_response(response)
         response_dict = response.json()
         if not response_dict.get('strError'):
             response.raise_for_status()

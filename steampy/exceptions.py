@@ -40,5 +40,12 @@ class BannedError(Exception):
     pass
 
 
+class BadResponse(Exception):
+
+    def __init__(self, response):
+        self.response = response
+        super(BadResponse, self).__init__("Bad response: {}".format(response.status_code))
+
+
 class EmptyMobileConfirmation(Exception):
     pass
