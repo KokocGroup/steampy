@@ -86,7 +86,8 @@ class ConfirmationExecutor:
         tag = 'details' + confirmation.id
         params = self._create_confirmation_params(tag)
         response = self._session.get(self.CONF_URL + '/details/' + confirmation.id, params=params)
-        return response.json()['html']
+        json_data = response.json()
+        return json_data['html']
 
     def _create_confirmation_params(self, tag_string: str) -> dict:
         timestamp = int(time.time())
