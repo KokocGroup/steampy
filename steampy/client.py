@@ -107,7 +107,7 @@ class SteamClient:
         return steam_login.lower() in main_page_response.text.lower()
 
     def _check_response(self, response):
-        if response.status_code in (502,):
+        if response.status_code in (502, 401):
             raise BadResponse(response)
 
     def api_call(self, request_method: str, interface: str, api_method: str, version: str,
@@ -386,7 +386,7 @@ class SteamClient:
         response = self._session.post(url, data=params, headers=headers)
         self._check_response(response)
         response_dict = response.json()
-        if not response_dict.get('strError'):
+        if not response_dict or not response_dict.get('strError'):
             response.raise_for_status()
 
         if response_dict.get('needs_mobile_confirmation'):
