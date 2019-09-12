@@ -87,6 +87,8 @@ class ConfirmationExecutor:
         params = self._create_confirmation_params(tag)
         response = self._session.get(self.CONF_URL + '/details/' + confirmation.id, params=params)
         json_data = response.json()
+        if 'success' in json_data and not json_data['success']:
+            raise ConfirmationExpected
         return json_data['html']
 
     def _create_confirmation_params(self, tag_string: str) -> dict:
