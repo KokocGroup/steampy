@@ -79,7 +79,7 @@ class LoginExecutor:
         if "Access Denied" in key_response.content:
             raise BannedError("Access Denied")
 
-        key_response = key_response..json()
+        key_response = key_response.json()
         try:
             rsa_mod = int(key_response['publickey_mod'], 16)
             rsa_exp = int(key_response['publickey_exp'], 16)
