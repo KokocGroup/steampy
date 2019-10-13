@@ -75,7 +75,11 @@ class LoginExecutor:
     def _fetch_rsa_params(self, current_number_of_repetitions: int = 0) -> dict:
         maximal_number_of_repetitions = 5
         key_response = self.session.post(SteamUrl.STORE_URL + '/login/getrsakey/',
-                                         data={'username': self.username}).json()
+                                         data={'username': self.username})
+        if "Access Denied" in key_response.content:
+            raise BannedError("Access Denied")
+
+        key_response = key_response..json()
         try:
             rsa_mod = int(key_response['publickey_mod'], 16)
             rsa_exp = int(key_response['publickey_exp'], 16)
