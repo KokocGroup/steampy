@@ -76,7 +76,7 @@ class LoginExecutor:
         maximal_number_of_repetitions = 5
         key_response = self.session.post(SteamUrl.STORE_URL + '/login/getrsakey/',
                                          data={'username': self.username})
-        if "Access Denied" in key_response.content:
+        if b"Access Denied" in key_response.content:
             raise BannedError("Access Denied")
 
         key_response = key_response.json()
