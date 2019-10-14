@@ -140,6 +140,7 @@ class SteamClient:
                   'count': count}
         response = self._session.get(url, params=params, stream=True)
         self._check_response(response)
+        response.raise_for_status()
         response_dict = response.json()
         if not response_dict:
             raise NullInventory()
@@ -147,8 +148,6 @@ class SteamClient:
             raise ApiException(response_dict['error'])
         if response_dict['success'] != 1:
             raise ApiException('Success value should be 1.')
-
-        response.raise_for_status()
 
         if merge:
             return merge_items_with_descriptions_from_inventory(response_dict, game)
