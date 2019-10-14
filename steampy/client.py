@@ -177,7 +177,9 @@ class SteamClient:
                   'active_only': active_only,
                   'historical_only': historical_only,
                   'time_historical_cutoff': time_historical_cutoff}
-        response = self.api_call('GET', 'IEconService', 'GetTradeOffers', 'v1', params).json()
+        response = self.api_call('GET', 'IEconService', 'GetTradeOffers', 'v1', params)
+        response.raise_for_status()
+        response = response.json()
         # response = self._filter_non_active_offers(response)
         if merge:
             response = merge_items_with_descriptions_from_offers(response)
