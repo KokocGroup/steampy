@@ -109,6 +109,9 @@ class SteamClient:
     def _check_response(self, response):
         if response.status_code in (502, 401):
             raise BadResponse(response)
+        if b"Access Denied" in response.content:
+            raise BannedError(response)
+
 
     def api_call(self, request_method: str, interface: str, api_method: str, version: str,
                  params: dict = None) -> requests.Response:
