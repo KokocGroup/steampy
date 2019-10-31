@@ -10,7 +10,10 @@ from python_rucaptcha import ImageCaptcha
 
 class LoginExecutor:
 
-    def __init__(self, username: str, password: str, shared_secret: str, session: requests.Session, rucaptcha_key: str) -> None:
+    def __init__(self, username: str, password: str, shared_secret: str, session: requests.Session, rucaptcha_key: str, rucaptcha_kwargs=None) -> None:
+        if rucaptcha_kwargs is None:
+            rucaptcha_kwargs = {}
+        self.rucaptcha_kwargs = rucaptcha_kwargs
         self.username = username
         self.password = password
         self.one_time_code = ''
@@ -25,7 +28,8 @@ class LoginExecutor:
         except CaptchaRequired as e:
             image_link = 'https://store.steampowered.com/login/rendercaptcha/?gid={}'.format(e.captcha_gid)
             user_answer = ImageCaptcha.ImageCaptcha(rucaptcha_key=self.rucaptcha_key).captcha_handler(
-                captcha_link=image_link
+                captcha_link=image_link,
+                **self.rucaptcha_kwargs
             )
 
             if user_answer['error']:
